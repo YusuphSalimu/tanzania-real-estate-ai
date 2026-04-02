@@ -288,9 +288,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Contact
 
-- **Project Lead**: [Your Name]
-- **Email**: [your.email@example.com]
-- **LinkedIn**: [linkedin.com/in/yourprofile]
+- **Project Lead**: Yusuph Salimu
+- **Email**: yusuphsaalim@gmail.com
+- **LinkedIn**: https://www.linkedin.com/in/yusuph-salimu-7818333aa/
 
 ## 🙏 Acknowledgments
 
