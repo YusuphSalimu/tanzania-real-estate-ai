@@ -22,11 +22,17 @@ import re
 from urllib.parse import urljoin, urlparse
 import os
 
-# Configure logging - Use console only for Render deployment
+# Create logs directory if it doesn't exist
+log_dir = os.path.join(os.path.dirname(__file__), '..', 'logs')
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
+
+# Configure logging - Use both file and console
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
+        logging.FileHandler(os.path.join(log_dir, 'scraper.log')),
         logging.StreamHandler()
     ]
 )
