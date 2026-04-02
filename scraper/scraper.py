@@ -27,12 +27,11 @@ log_dir = os.path.join(os.path.dirname(__file__), '..', 'logs')
 if not os.path.exists(log_dir):
     os.makedirs(log_dir)
 
-# Configure logging - Use both file and console
+# Configure logging - Use console only for Render (better for production)
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler(os.path.join(log_dir, 'scraper.log')),
         logging.StreamHandler()
     ]
 )
