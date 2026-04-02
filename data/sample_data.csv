@@ -1,0 +1,31 @@
+id,location,city,ward,price_tzs,bedrooms,bathrooms,size_sqm,property_type,amenities,description,listing_date,latitude,longitude
+1,Kinondoni,Dar es Salaam,Mikocheni,450000000,3,2,120,Apartment,"parking,security,swimming_pool","Modern 3-bedroom apartment in prime location",2023-10-15,-6.7624,39.2479
+2,Ilala,Dar es Salaam,Kariakoo,180000000,2,1,80,Apartment,"security","Affordable 2-bedroom in central area",2023-10-14,-6.8166,39.2830
+3,Ubungo,Dar es Salaam,Ubungo,320000000,4,2,150,House,"parking,garden,security","Spacious family house with garden",2023-10-13,-6.8023,39.2235
+4,Temeke,Dar es Salaam,Temeke,150000000,3,1,110,House,"security","3-bedroom house in Temeke",2023-10-12,-6.9025,39.3782
+5,Kinondoni,Dar es Salaam,Masaki,850000000,5,4,280,Villa,"parking,security,swimming_pool,garden","Luxury villa in Masaki",2023-10-11,-6.7524,39.2679
+6,Arusha,Arusha,Themi,280000000,3,2,140,House,"parking,security","Modern house in Arusha",2023-10-10,-3.3869,36.6830
+7,Dodoma,Dodoma,Makulu,120000000,2,1,90,House,"security","Affordable house in Dodoma",2023-10-09,-6.1730,35.7435
+8,Mwanza,Mwanza,Nyamagana,380000000,4,3,180,House,"parking,security,waterfront","Lake view house in Mwanza",2023-10-08,-2.5164,32.9046
+9,Kinondoni,Dar es Salaam,Mwenge,550000000,3,2,160,Apartment,"parking,security,gym","Modern apartment with gym",2023-10-07,-6.7624,39.2279
+10,Ilala,Dar es Salaam,Upanga,420000000,4,2,170,Apartment,"parking,security,swimming_pool","Upanga apartment complex",2023-10-06,-6.7966,39.2730
+11,Arusha,Arusha,Njiro,650000000,5,3,220,Villa,"parking,security,swimming_pool,garden","Premium villa in Njiro",2023-10-05,-3.3669,36.6730
+12,Temeke,Dar es Salaam,Chang'ombe,220000000,3,2,130,House,"parking,security","Family house in Chang'ombe",2023-10-04,-6.8825,39.3582
+13,Ubungo,Dar es Salaam,Kawe,480000000,4,3,190,House,"parking,security,garden","Kawe residential house",2023-10-03,-6.7423,39.2135
+14,Kinondoni,Dar es Salaam,Oyster Bay,1200000000,6,4,320,Villa,"parking,security,swimming_pool,gym,sea_view","Luxury beachfront villa",2023-10-02,-6.7324,39.2779
+15,Ilala,Dar es Salaam,Gerezani,350000000,3,2,150,Apartment,"parking,security","City center apartment",2023-10-01,-6.8166,39.2930
+16,Mbeya,Mbeya,Soweto,95000000,2,1,85,House,"security","Affordable Mbeya house",2023-09-30,-8.9167,33.4500
+17,Morogoro,Morogoro,Mji Mkuu,160000000,3,1,100,House,"parking","Morogoro family house",2023-09-29,-6.8333,37.6667
+18,Tanga,Tanga,Chumbageni,135000000,2,1,95,House,"security","Coastal Tanga house",2023-09-28,-5.0689,39.2988
+19,Kinondoni,Dar es Salaam,Mabibo,280000000,3,2,140,Apartment,"parking,security","Mabibo modern apartment",2023-09-27,-6.7824,39.2379
+20,Arusha,Arusha,Sakina,195000000,2,2,110,House,"parking,security","Sakina residential house",2023-09-26,-3.3769,36.6930
+21,Dodoma,Dodoma,Chinangali,145000000,3,1,105,House,"security,garden","Dodoma family home",2023-09-25,-6.1830,35.7335
+22,Mwanza,Mwanza,Ilemela,410000000,4,3,175,House,"parking,security,waterfront","Ilemela lakefront property",2023-09-24,-2.5264,32.9146
+23,Ilala,Dar es Salaam,Vingunguti,165000000,2,1,85,House,"security","Budget housing in Vingunguti",2023-09-23,-6.8466,39.2630
+24,Ubungo,Dar es Salaam,Makumbusho,520000000,4,2,185,House,"parking,security,garden","Makumbusho family house",2023-09-22,-6.8123,39.2335
+25,Kinondoni,Dar es Salaam,Regent Estate,780000000,5,4,260,Villa,"parking,security,swimming_pool,gym","Premium Regent Estate villa",2023-09-21,-6.7424,39.2579
+26,Arusha,Arusha,Moshi Road,320000000,3,2,145,House,"parking,security","House on Moshi road",2023-09-20,-3.3969,36.6830
+27,Temeke,Dar es Salaam,Mbagala,185000000,3,1,115,House,"security","Mbagala affordable house",2023-09-19,-6.9325,39.3982
+28,Kinondoni,Dar es Salaam,Bunju,420000000,4,3,195,House,"parking,security,garden","Bunju spacious house",2023-09-18,-6.6724,39.2179
+29,Ilala,Dar es Salaam,Kigogo,235000000,2,2,125,Apartment,"parking,security","Kigogo modern apartment",2023-09-17,-6.8366,39.3030
+30,Mbeya,Mbeya,Nzenga,115000000,2,1,90,House,"security","Nzenga residential house",2023-09-16,-8.9267,33.4600
