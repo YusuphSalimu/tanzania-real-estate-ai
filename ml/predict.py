@@ -7,12 +7,32 @@ import numpy as np
 import joblib
 from datetime import datetime
 import warnings
+import logging
 warnings.filterwarnings('ignore')
+logger = logging.getLogger(__name__)
 
 class RealEstatePredictor:
     def __init__(self, model_path='../ml/model.pkl'):
         """Initialize the predictor with a trained model"""
-        self.model_data = joblib.load(model_path)
+        try:
+            self.model_data = joblib.load(model_path)
+        except FileNotFoundError:
+            # Try alternative paths for different deployment environments
+            alternative_paths = [
+                'ml/model.pkl',
+                '../ml/model.pkl',
+                '../../ml/model.pkl',
+                '/opt/render/project/src/ml/model.pkl'
+            ]
+            for path in alternative_paths:
+                try:
+                    self.model_data = joblib.load(path)
+                    logger.info(f"Model loaded from: {path}")
+                    break
+                except FileNotFoundError:
+                    continue
+            else:
+                raise FileNotFoundError("Model file not found in any expected location")
         self.model = self.model_data['model']
         self.model_name = self.model_data['model_name']
         self.encoders = self.model_data['encoders']
