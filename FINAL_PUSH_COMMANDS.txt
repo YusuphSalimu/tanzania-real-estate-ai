@@ -1,0 +1,19 @@
+# FINAL COMMANDS TO PUSH EVERYTHING TO GITHUB
+# Run these ONE BY ONE after creating repository on GitHub
+
+# 1. Remove any existing remote
+git remote remove origin
+
+# 2. Add your new repository
+git remote add origin https://github.com/YusuphSalimu/tanzania-real-estate-ai.git
+
+# 3. Push everything to GitHub
+git push -u origin main
+
+# If it asks for username/password, use:
+# Username: YusuphSalimu
+# Password: YOUR_GITHUB_TOKEN (not your actual password)
+
+# OR use token in URL:
+# git remote set-url origin https://YOUR_TOKEN@github.com/YusuphSalimu/tanzania-real-estate-ai.git
+# git push -u origin main
