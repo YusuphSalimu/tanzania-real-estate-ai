@@ -3,11 +3,11 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "build": "cd frontend && npm install && npm run build",
+    "build": "cd frontend && npm ci --prefer-offline --no-audit && npm run build",
     "dev": "cd frontend && npm run dev",
     "preview": "cd frontend && npm run preview"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=18.0.0"
   }
 }
