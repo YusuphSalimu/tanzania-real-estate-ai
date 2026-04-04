@@ -1,0 +1,15 @@
+services:
+  # Frontend Static Site
+  - type: static
+    name: tanzania-real-estate-ai-frontend
+    env: static
+    repo: https://github.com/YusuphSalimu/tanzania-real-estate-ai.git
+    rootDir: frontend
+    buildCommand: npm run build
+    publishDir: dist
+    nodeVersion: 22
+    envVars:
+      - key: VITE_API_BASE
+        value: https://your-backend-name.onrender.com
+      - key: VITE_GOOGLE_MAPS_API_KEY
+        value: AIzaSyBt9a_4fZ9T2x3y4w5v6x7z8a9b0c1d2e3
