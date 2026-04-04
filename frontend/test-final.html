@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Final Test - Tanzania Real Estate AI</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
+        .success { color: #10b981; font-weight: bold; }
+        .error { color: #ef4444; font-weight: bold; }
+        .btn { padding: 10px 20px; margin: 10px; border: none; border-radius: 5px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 FINAL TEST - Tanzania Real Estate AI</h1>
+        <p id="status">Testing...</p>
+        
+        <button class="btn btn-primary" onclick="testAllFunctions()">Test All Functions</button>
+        <button class="btn btn-primary" onclick="window.location.href='/'">Back to Main Site</button>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://tanzania-real-estate-ai.onrender.com';
+        
+        async function testAllFunctions() {
+            const results = document.getElementById('results');
+            const status = document.getElementById('status');
+            
+            status.innerHTML = 'Testing all functions...';
+            results.innerHTML = '';
+            
+            // Test 1: Basic JavaScript
+            try {
+                const test = 'JavaScript working';
+                results.innerHTML += `<p class="success">✅ JavaScript: ${test}</p>`;
+            } catch (error) {
+                results.innerHTML += `<p class="error">❌ JavaScript Error: ${error.message}</p>`;
+            }
+            
+            // Test 2: API Connection
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                if (response.ok) {
+                    const data = await response.json();
+                    results.innerHTML += `<p class="success">✅ API Connection: ${data.status}</p>`;
+                } else {
+                    results.innerHTML += `<p class="error">❌ API Error: ${response.status}</p>`;
+                }
+            } catch (error) {
+                results.innerHTML += `<p class="error">❌ API Failed: ${error.message}</p>`;
+            }
+            
+            // Test 3: Function Definitions
+            const functions = ['switchTab', 'loadProperties', 'testHealth', 'loadStats'];
+            functions.forEach(func => {
+                if (typeof window[func] === 'function') {
+                    results.innerHTML += `<p class="success">✅ Function ${func}: Defined</p>`;
+                } else {
+                    results.innerHTML += `<p class="error">❌ Function ${func}: Not defined</p>`;
+                }
+            });
+            
+            status.innerHTML = 'Test complete!';
+        }
+        
+        // Auto-test on load
+        window.onload = function() {
+            setTimeout(testAllFunctions, 1000);
+        };
+    </script>
+</body>
+</html>
