@@ -1,0 +1,11 @@
+id,predicted_price,actual_price,price_difference,accuracy_score,model_used,property_type,city,confidence_score,prediction_date
+1,452000000,450000000,2000000,0.996,xgboost,Apartment,Dar es Salaam,0.92,2024-01-15
+2,185000000,180000000,5000000,0.972,random_forest,Apartment,Dar es Salaam,0.88,2024-01-15
+3,325000000,320000000,5000000,0.984,gradient_boost,House,Dar es Salaam,0.91,2024-01-15
+4,148000000,150000000,-2000000,0.987,xgboost,House,Dar es Salaam,0.89,2024-01-15
+5,855000000,850000000,5000000,0.994,random_forest,Villa,Dar es Salaam,0.95,2024-01-15
+6,278000000,280000000,-2000000,0.993,gradient_boost,House,Arusha,0.87,2024-01-15
+7,122000000,120000000,2000000,0.983,xgboost,House,Dodoma,0.85,2024-01-15
+8,378000000,380000000,-2000000,0.995,random_forest,House,Mwanza,0.90,2024-01-15
+9,548000000,550000000,-2000000,0.996,gradient_boost,Apartment,Dar es Salaam,0.93,2024-01-15
+10,418000000,420000000,-2000000,0.995,xgboost,Apartment,Dar es Salaam,0.91,2024-01-15

@@ -1,0 +1,6 @@
+# This file ensures the raw directory is tracked by git
+# Raw data sources will be stored here:
+# - Government census data
+# - World Bank demographic data
+# - Scraped property data
+# - Private sector data

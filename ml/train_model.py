@@ -1,127 +1,155 @@
 """
 ML Model Training for Tanzania Real Estate Price Prediction
+Trains machine learning models for property price prediction
 """
 
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-from sklearn.linear_model import LinearRegression
-from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-import xgboost as xgb
 import joblib
-import matplotlib.pyplot as plt
-import seaborn as sns
+import json
 from datetime import datetime
-import warnings
-warnings.filterwarnings('ignore')
 
-class RealEstatePriceModel:
-    def __init__(self):
-        self.models = {
-            'random_forest': RandomForestRegressor(random_state=42),
-            'gradient_boost': GradientBoostingRegressor(random_state=42),
-            'xgboost': xgb.XGBRegressor(random_state=42),
-            'linear_regression': LinearRegression()
-        }
-        self.scalers = {}
-        self.encoders = {}
-        self.best_model = None
-        self.best_model_name = None
-        self.feature_columns = None
-        
-    def load_data(self, file_path='../data/sample_data.csv'):
-        """Load and preprocess the dataset"""
-        df = pd.read_csv(file_path)
-        
-        # Convert listing_date to datetime and extract features
-        df['listing_date'] = pd.to_datetime(df['listing_date'])
-        df['days_since_listing'] = (datetime.now() - df['listing_date']).dt.days
-        df['listing_month'] = df['listing_date'].dt.month
-        df['listing_year'] = df['listing_date'].dt.year
-        
-        # Price per square meter
-        df['price_per_sqm'] = df['price_tzs'] / df['size_sqm']
-        
-        # Total rooms
-        df['total_rooms'] = df['bedrooms'] + df['bathrooms']
-        
-        # Room size ratio
-        df['size_per_room'] = df['size_sqm'] / df['total_rooms']
-        
-        return df
+class TanzaniaRealEstateML:
+    """ML Model for Tanzania Real Estate Price Prediction"""
     
-    def preprocess_features(self, df):
-        """Preprocess features for ML training"""
+    def __init__(self):
+        self.location_multipliers = {
+            "Dar es Salaam": 1.0,
+            "Arusha": 0.8,
+            "Mwanza": 0.7,
+            "Dodoma": 0.6,
+            "Mbeya": 0.5,
+            "Tanga": 0.6,
+            "Morogoro": 0.5,
+            "Kilimanjaro": 0.9,
+            "Tabora": 0.4
+        }
+        
+        self.property_type_multipliers = {
+            "Apartment": 1.0,
+            "House": 1.2,
+            "Villa": 1.5,
+            "Townhouse": 1.1,
+            "Bungalow": 0.9
+        }
+    
+    def generate_sample_data(self, n_samples=1000):
+        """Generate realistic sample data for training"""
+        
+        np.random.seed(42)
+        data = []
+        
+        cities = list(self.location_multipliers.keys())
+        property_types = list(self.property_type_multipliers.keys())
+        
+        for i in range(n_samples):
+            # Generate realistic property data
+            city = np.random.choice(cities)
+            property_type = np.random.choice(property_types)
+            bedrooms = np.random.randint(1, 6)
+            bathrooms = np.random.randint(1, 4)
+            size_sqm = np.random.randint(40, 500)
+            
+            # Calculate base price
+            base_price = 50000000
+            location_mult = self.location_multipliers[city]
+            type_mult = self.property_type_multipliers[property_type]
+            
+            # Feature contributions
+            bedroom_value = bedrooms * 30000000
+            bathroom_value = bathrooms * 15000000
+            size_value = size_sqm * 2000000
+            
+            # Add some realistic variation
+            price = (base_price + bedroom_value + bathroom_value + size_value) * location_mult * type_mult
+            price = int(price * np.random.uniform(0.8, 1.3))
+            
+            data.append({
+                "location": f"Area_{i % 20 + 1}",
+                "city": city,
+                "bedrooms": bedrooms,
+                "bathrooms": bathrooms,
+                "size_sqm": size_sqm,
+                "property_type": property_type,
+                "price_tzs": price,
+                "amenities": np.random.choice(["parking", "security", "swimming_pool", "garden", "balcony"]),
+                "listing_date": f"2023-{np.random.randint(1,13):02d}-{np.random.randint(1,29):02d}"
+            })
+        
+        return pd.DataFrame(data)
+    
+    def preprocess_data(self, df):
+        """Preprocess data for ML training"""
+        
+        # Create copies
         df_processed = df.copy()
         
-        # Handle categorical variables
-        categorical_columns = ['location', 'city', 'ward', 'property_type']
+        # Encode categorical variables
+        le_city = LabelEncoder()
+        le_type = LabelEncoder()
+        le_amenities = LabelEncoder()
         
-        for col in categorical_columns:
-            if col not in self.encoders:
-                self.encoders[col] = LabelEncoder()
-                df_processed[f'{col}_encoded'] = self.encoders[col].fit_transform(df_processed[col])
-            else:
-                df_processed[f'{col}_encoded'] = self.encoders[col].transform(df_processed[col])
+        df_processed['city_encoded'] = le_city.fit_transform(df_processed['city'])
+        df_processed['property_type_encoded'] = le_type.fit_transform(df_processed['property_type'])
+        df_processed['amenities_encoded'] = le_amenities.fit_transform(df_processed['amenities'])
         
-        # Process amenities
-        df_processed['amenities_count'] = df_processed['amenities'].apply(
-            lambda x: len(x.split(',')) if pd.notna(x) else 0
-        )
+        # Add engineered features
+        df_processed['price_per_sqm'] = df_processed['price_tzs'] / df_processed['size_sqm']
+        df_processed['bedroom_bathroom_ratio'] = df_processed['bedrooms'] / df_processed['bathrooms']
+        df_processed['size_per_bedroom'] = df_processed['size_sqm'] / df_processed['bedrooms']
         
-        # Specific amenity features
-        amenity_features = ['parking', 'security', 'swimming_pool', 'garden', 'gym', 'waterfront', 'sea_view']
-        for feature in amenity_features:
-            df_processed[f'has_{feature}'] = df_processed['amenities'].str.contains(
-                feature, case=False, na=False
-            ).astype(int)
+        # Save encoders for later use
+        self.encoders = {
+            'city': le_city,
+            'property_type': le_type,
+            'amenities': le_amenities
+        }
         
-        return df_processed
-    
-    def prepare_features(self, df):
-        """Prepare feature matrix and target variable"""
+        # Select features for training
         feature_columns = [
-            'bedrooms', 'bathrooms', 'size_sqm', 'total_rooms', 'size_per_room',
-            'days_since_listing', 'listing_month', 'price_per_sqm', 'amenities_count',
-            'has_parking', 'has_security', 'has_swimming_pool', 'has_garden', 
-            'has_gym', 'has_waterfront', 'has_sea_view',
-            'location_encoded', 'city_encoded', 'ward_encoded', 'property_type_encoded',
-            'latitude', 'longitude'
+            'city_encoded',
+            'property_type_encoded',
+            'amenities_encoded',
+            'bedrooms',
+            'bathrooms',
+            'size_sqm',
+            'price_per_sqm',
+            'bedroom_bathroom_ratio',
+            'size_per_bedroom'
         ]
         
-        # Filter available columns
-        available_features = [col for col in feature_columns if col in df.columns]
-        
-        X = df[available_features].fillna(0)
-        y = df['price_tzs']
-        
-        # Scale numerical features
-        numerical_features = ['bedrooms', 'bathrooms', 'size_sqm', 'total_rooms', 
-                           'size_per_room', 'days_since_listing', 'listing_month',
-                           'price_per_sqm', 'amenities_count', 'latitude', 'longitude']
-        
-        numerical_features = [col for col in numerical_features if col in X.columns]
-        
-        if 'standard_scaler' not in self.scalers:
-            self.scalers['standard_scaler'] = StandardScaler()
-            X[numerical_features] = self.scalers['standard_scaler'].fit_transform(X[numerical_features])
-        else:
-            X[numerical_features] = self.scalers['standard_scaler'].transform(X[numerical_features])
-        
-        self.feature_columns = available_features
-        return X, y
+        return df_processed[feature_columns], df_processed['price_tzs']
     
     def train_models(self, X, y):
-        """Train multiple models and select the best one"""
+        """Train multiple ML models and select the best one"""
+        
+        # Split data
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, test_size=0.2, random_state=42
         )
         
+        # Initialize models
+        models = {
+            'random_forest': RandomForestRegressor(
+                n_estimators=100,
+                random_state=42,
+                max_depth=10
+            ),
+            'gradient_boosting': GradientBoostingRegressor(
+                n_estimators=100,
+                random_state=42,
+                max_depth=8
+            )
+        }
+        
         results = {}
         
-        for name, model in self.models.items():
+        # Train and evaluate each model
+        for name, model in models.items():
             print(f"Training {name}...")
             
             # Train model
@@ -132,188 +160,90 @@ class RealEstatePriceModel:
             
             # Calculate metrics
             mae = mean_absolute_error(y_test, y_pred)
-            rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+            mse = mean_squared_error(y_test, y_pred)
             r2 = r2_score(y_test, y_pred)
             
             results[name] = {
                 'model': model,
                 'mae': mae,
-                'rmse': rmse,
+                'mse': mse,
                 'r2': r2,
-                'predictions': y_pred
+                'rmse': np.sqrt(mse)
             }
             
-            print(f"{name} - MAE: {mae:,.0f} TZS, RMSE: {rmse:,.0f} TZS, R2: {r2:.4f}")
+            print(f"{name} - MAE: {mae:,.0f}, R2: {r2:.3f}")
         
-        # Select best model based on R2 score
-        best_model_name = max(results.keys(), key=lambda x: results[x]['r2'])
-        self.best_model = results[best_model_name]['model']
-        self.best_model_name = best_model_name
+        # Select best model based on MAE
+        best_model_name = min(results.keys(), key=lambda k: results[k]['mae'])
+        best_model = results[best_model_name]['model']
         
         print(f"\nBest model: {best_model_name}")
-        print(f"Best R2 Score: {results[best_model_name]['r2']:.4f}")
+        print(f"Best MAE: {results[best_model_name]['mae']:,.0f}")
+        print(f"Best R2: {results[best_model_name]['r2']:.3f}")
         
-        return results, X_test, y_test
+        return best_model, results
     
-    def hyperparameter_tuning(self, X, y):
-        """Perform hyperparameter tuning for the best model"""
-        if self.best_model_name == 'xgboost':
-            param_grid = {
-                'n_estimators': [100, 200, 300],
-                'max_depth': [3, 5, 7],
-                'learning_rate': [0.01, 0.1, 0.2],
-                'subsample': [0.8, 0.9, 1.0]
-            }
-            model = xgb.XGBRegressor(random_state=42)
-        elif self.best_model_name == 'random_forest':
-            param_grid = {
-                'n_estimators': [100, 200, 300],
-                'max_depth': [10, 20, None],
-                'min_samples_split': [2, 5, 10]
-            }
-            model = RandomForestRegressor(random_state=42)
-        else:
-            print("Hyperparameter tuning not implemented for this model")
-            return
+    def save_model(self, model, model_path='ml/model.pkl'):
+        """Save the trained model"""
         
-        X_train, X_test, y_train, y_test = train_test_split(
-            X, y, test_size=0.2, random_state=42
-        )
-        
-        grid_search = GridSearchCV(
-            model, param_grid, cv=5, scoring='r2', n_jobs=-1, verbose=1
-        )
-        
-        grid_search.fit(X_train, y_train)
-        
-        print(f"Best parameters: {grid_search.best_params_}")
-        print(f"Best R2 score: {grid_search.best_score_:.4f}")
-        
-        # Update best model
-        self.best_model = grid_search.best_estimator_
-        
-        # Final evaluation
-        y_pred = self.best_model.predict(X_test)
-        mae = mean_absolute_error(y_test, y_pred)
-        rmse = np.sqrt(mean_squared_error(y_test, y_pred))
-        r2 = r2_score(y_test, y_pred)
-        
-        print(f"Tuned Model - MAE: {mae:,.0f} TZS, RMSE: {rmse:,.0f} TZS, R2: {r2:.4f}")
-    
-    def feature_importance(self, X):
-        """Plot feature importance"""
-        if hasattr(self.best_model, 'feature_importances_'):
-            importances = self.best_model.feature_importances_
-            feature_names = X.columns
-            
-            # Create DataFrame for visualization
-            feature_df = pd.DataFrame({
-                'feature': feature_names,
-                'importance': importances
-            }).sort_values('importance', ascending=False)
-            
-            # Set matplotlib to non-interactive mode
-            import matplotlib
-            matplotlib.use('Agg')  # Use non-interactive backend
-            
-            plt.figure(figsize=(12, 8))
-            sns.barplot(data=feature_df.head(15), x='importance', y='feature')
-            plt.title('Top 15 Feature Importances')
-            plt.xlabel('Importance')
-            plt.tight_layout()
-            plt.savefig('../outputs/charts/feature_importance.png', dpi=300, bbox_inches='tight')
-            plt.close()  # Close the figure to free memory
-            
-            print("✅ Feature importance chart saved!")
-            return feature_df
-        else:
-            print("Feature importance not available for this model")
-            return None
-    
-    def save_model(self, model_path='../ml/model.pkl'):
-        """Save the trained model and preprocessors"""
         model_data = {
-            'model': self.best_model,
-            'model_name': self.best_model_name,
+            'model': model,
             'encoders': self.encoders,
-            'scalers': self.scalers,
-            'feature_columns': self.feature_columns
+            'location_multipliers': self.location_multipliers,
+            'property_type_multipliers': self.property_type_multipliers,
+            'metadata': {
+                'training_date': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                'model_type': type(model).__name__,
+                'target_currency': 'TZS',
+                'features_used': ['city', 'property_type', 'bedrooms', 'bathrooms', 'size_sqm']
+            }
         }
         
         joblib.dump(model_data, model_path)
         print(f"Model saved to {model_path}")
-    
-    def load_model(self, model_path='../ml/model.pkl'):
-        """Load a trained model"""
-        model_data = joblib.load(model_path)
         
-        self.best_model = model_data['model']
-        self.best_model_name = model_data['model_name']
-        self.encoders = model_data['encoders']
-        self.scalers = model_data['scalers']
-        self.feature_columns = model_data['feature_columns']
-        
-        print(f"Model loaded from {model_path}")
-        print(f"Model type: {self.best_model_name}")
+        # Save training metrics
+        metrics_path = model_path.replace('.pkl', '_metrics.json')
+        with open(metrics_path, 'w') as f:
+            json.dump(model_data['metadata'], f, indent=2)
+        print(f"Metrics saved to {metrics_path}")
 
 def main():
-    """Main training pipeline"""
-    print("🏠 Tanzania Real Estate Price Prediction - Model Training")
-    print("=" * 60)
+    """Main training function"""
     
-    # Initialize model trainer
-    trainer = RealEstatePriceModel()
+    print("🏠 Tanzania Real Estate AI - ML Model Training")
+    print("=" * 50)
     
-    # Load data
-    print("📊 Loading data...")
-    df = trainer.load_data()
-    print(f"Dataset shape: {df.shape}")
+    # Initialize ML system
+    ml_system = TanzaniaRealEstateML()
     
-    # Preprocess features
-    print("🔧 Preprocessing features...")
-    df_processed = trainer.preprocess_features(df)
+    # Generate sample data
+    print("📊 Generating sample training data...")
+    df = ml_system.generate_sample_data(n_samples=1000)
+    print(f"Generated {len(df)} training samples")
     
-    # Prepare features
-    print("🎯 Preparing feature matrix...")
-    X, y = trainer.prepare_features(df_processed)
-    print(f"Feature matrix shape: {X.shape}")
+    # Preprocess data
+    print("🔧 Preprocessing data...")
+    X, y = ml_system.preprocess_data(df)
+    print(f"Features shape: {X.shape}")
+    print(f"Target shape: {y.shape}")
     
     # Train models
-    print("🚀 Training models...")
-    results, X_test, y_test = trainer.train_models(X, y)
+    print("\n🤖 Training ML models...")
+    best_model, results = ml_system.train_models(X, y)
     
-    # Hyperparameter tuning
-    print("\n🔍 Performing hyperparameter tuning...")
-    trainer.hyperparameter_tuning(X, y)
-    
-    # Feature importance
-    print("\n📈 Analyzing feature importance...")
-    feature_importance = trainer.feature_importance(X)
-    
-    # Save model
+    # Save best model
     print("\n💾 Saving model...")
-    trainer.save_model()
+    ml_system.save_model(best_model)
     
-    # Create prediction vs actual plot
-    import matplotlib
-    matplotlib.use('Agg')  # Use non-interactive backend
-    
-    plt.figure(figsize=(10, 6))
-    best_results = results[trainer.best_model_name]
-    plt.scatter(y_test, best_results['predictions'], alpha=0.6)
-    plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'r--', lw=2)
-    plt.xlabel('Actual Price (TZS)')
-    plt.ylabel('Predicted Price (TZS)')
-    plt.title(f'Actual vs Predicted Prices - {trainer.best_model_name.title()}')
-    plt.tight_layout()
-    plt.savefig('../outputs/charts/prediction_vs_actual.png', dpi=300, bbox_inches='tight')
-    plt.close()  # Close the figure to free memory
-    print("✅ Prediction vs Actual chart saved!")
-    
-    print("\n✅ Training completed successfully!")
-    print(f"📊 Best model: {trainer.best_model_name}")
-    print(f"🎯 R2 Score: {results[trainer.best_model_name]['r2']:.4f}")
-    print(f"💰 MAE: {results[trainer.best_model_name]['mae']:,.0f} TZS")
+    # Print summary
+    print("\n" + "=" * 50)
+    print("✅ TRAINING COMPLETED SUCCESSFULLY!")
+    print(f"📈 Best Model Performance:")
+    print(f"   - MAE: {min(results[r]['mae'] for r in results):,.0f} TZS")
+    print(f"   - R² Score: {max(results[r]['r2'] for r in results):.3f}")
+    print(f"📅 Training Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print("=" * 50)
 
 if __name__ == "__main__":
     main()

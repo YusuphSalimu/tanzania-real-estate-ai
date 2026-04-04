@@ -1,0 +1,5 @@
+# This file ensures the cleaned directory is tracked by git
+# Processed and cleaned data will be stored here:
+# - Standardized property data
+# - Feature-engineered datasets
+# - Training datasets for ML models
