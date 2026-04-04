@@ -125,7 +125,7 @@ app = FastAPI(
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, specify specific origins
+    allow_origins=["*", "https://tanzania-real-estate-ai-frontend.netlify.app"],  # Allow Netlify frontend
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
