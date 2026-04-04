@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Tanzania Real Estate AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .card { background: white; border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .btn { padding: 12px 24px; border: none; border-radius: 8px; font-weight: 500; cursor: pointer; margin: 5px; }
+        .btn-primary { background: #3b82f6; color: white; }
+        .btn-success { background: #10b981; color: white; }
+        .btn-warning { background: #f59e0b; color: white; }
+        .status { padding: 10px; border-radius: 6px; margin: 10px 0; }
+        .status.success { background: #d1fae5; color: #065f46; }
+        .status.error { background: #fee2e2; color: #991b1b; }
+        .status.loading { background: #fef3c7; color: #92400e; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .property-card { border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Tanzania Real Estate AI - Debug Mode</h1>
+        
+        <div class="card">
+            <h2>🚀 Initialization Status</h2>
+            <div id="init-status" class="status loading">Initializing...</div>
+            <button class="btn btn-primary" onclick="testAllFunctions()">Test All Functions</button>
+            <button class="btn btn-success" onclick="loadTestData()">Load Test Data</button>
+        </div>
+        
+        <div class="card">
+            <h2>🔧 API Connection Test</h2>
+            <div id="api-status" class="status loading">Testing API...</div>
+            <button class="btn btn-primary" onclick="testAPI()">Test API Connection</button>
+        </div>
+        
+        <div class="card">
+            <h2>📊 Dashboard Functions</h2>
+            <div id="dashboard-status" class="status">Ready to test</div>
+            <button class="btn btn-warning" onclick="testLoadProperties()">Test Load Properties</button>
+            <button class="btn btn-warning" onclick="testLoadStats()">Test Load Stats</button>
+        </div>
+        
+        <div class="card">
+            <h2>🏠 Properties Display</h2>
+            <div id="properties-grid" class="grid"></div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE = 'https://tanzania-real-estate-ai.onrender.com';
+        let currentProperties = [];
+        let currentStats = {};
+        
+        // Test data
+        const testProperties = [
+            {
+                id: 1,
+                location: "Kinondoni",
+                city: "Dar es Salaam",
+                ward: "Mikocheni",
+                price_tzs: 450000000,
+                bedrooms: 3,
+                bathrooms: 2,
+                size_sqm: 120,
+                property_type: "Apartment",
+                description: "Modern 3-bedroom apartment",
+                listing_date: "2023-10-15"
+            },
+            {
+                id: 2,
+                location: "Ilala",
+                city: "Dar es Salaam",
+                ward: "Kariakoo",
+                price_tzs: 180000000,
+                bedrooms: 2,
+                bathrooms: 1,
+                size_sqm: 80,
+                property_type: "Apartment",
+                description: "Affordable 2-bedroom apartment",
+                listing_date: "2023-10-14"
+            }
+        ];
+        
+        // Update status function
+        function updateStatus(elementId, message, type = 'loading') {
+            const element = document.getElementById(elementId);
+            element.className = `status ${type}`;
+            element.innerHTML = message;
+        }
+        
+        // Test API connection
+        async function testAPI() {
+            updateStatus('api-status', 'Testing API connection...', 'loading');
+            
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                if (response.ok) {
+                    const data = await response.json();
+                    updateStatus('api-status', `✅ API Connected: ${data.status}`, 'success');
+                } else {
+                    updateStatus('api-status', `❌ API Error: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                updateStatus('api-status', `❌ API Failed: ${error.message}`, 'error');
+            }
+        }
+        
+        // Test load properties
+        async function testLoadProperties() {
+            updateStatus('dashboard-status', 'Testing loadProperties...', 'loading');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/properties?limit=3`);
+                if (response.ok) {
+                    const data = await response.json();
+                    currentProperties = data.properties || [];
+                    displayProperties(currentProperties);
+                    updateStatus('dashboard-status', `✅ Loaded ${currentProperties.length} properties`, 'success');
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                // Fallback to test data
+                currentProperties = testProperties;
+                displayProperties(currentProperties);
+                updateStatus('dashboard-status', `⚠️ Using test data: ${error.message}`, 'error');
+            }
+        }
+        
+        // Test load stats
+        async function testLoadStats() {
+            try {
+                const response = await fetch(`${API_BASE}/api/stats`);
+                if (response.ok) {
+                    const data = await response.json();
+                    currentStats = data;
+                    updateStatus('dashboard-status', `✅ Stats loaded: ${data.total_properties} properties`, 'success');
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                // Fallback stats
+                currentStats = { total_properties: 2, average_price: 315000000 };
+                updateStatus('dashboard-status', `⚠️ Using test stats: ${error.message}`, 'error');
+            }
+        }
+        
+        // Display properties
+        function displayProperties(properties) {
+            const grid = document.getElementById('properties-grid');
+            grid.innerHTML = properties.map(property => `
+                <div class="property-card">
+                    <h3>${property.location}</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> ${property.city}, ${property.ward}</p>
+                    <p><strong>Price:</strong> ${formatPrice(property.price_tzs)}</p>
+                    <p><strong>Size:</strong> ${property.size_sqm} sqm</p>
+                    <p><strong>Bedrooms:</strong> ${property.bedrooms}</p>
+                    <p><strong>Type:</strong> ${property.property_type}</p>
+                    <button class="btn btn-primary" onclick="alert('Property ${property.id} clicked!')">
+                        <i class="fas fa-eye"></i> View Details
+                    </button>
+                </div>
+            `).join('');
+        }
+        
+        // Format price
+        function formatPrice(price) {
+            return new Intl.NumberFormat('en-TZ', {
+                style: 'currency',
+                currency: 'TZS',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(price);
+        }
+        
+        // Load test data
+        function loadTestData() {
+            currentProperties = testProperties;
+            displayProperties(currentProperties);
+            updateStatus('dashboard-status', '✅ Test data loaded', 'success');
+        }
+        
+        // Test all functions
+        async function testAllFunctions() {
+            updateStatus('init-status', 'Testing all functions...', 'loading');
+            
+            await testAPI();
+            await testLoadProperties();
+            await testLoadStats();
+            
+            updateStatus('init-status', '✅ All tests completed', 'success');
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Debug page loaded');
+            updateStatus('init-status', '✅ Page loaded successfully', 'success');
+            
+            // Auto-test API
+            setTimeout(testAPI, 1000);
+        });
+    </script>
+</body>
+</html>
