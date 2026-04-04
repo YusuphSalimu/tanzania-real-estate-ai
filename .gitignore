@@ -485,7 +485,9 @@ mlruns/
 *.json
 *.xml
 !data/sample_data.csv
-!requirements.txt
+# Python dependencies - hide from frontend deployment
+requirements.txt
+requirements.txt.backup
 
 # Browser cache
 .cache/
