@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connection Test - Tanzania Real Estate AI</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .error { background: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        .loading { background: #fff3cd; border-color: #ffeaa7; color: #856404; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Frontend-Backend Connection Test</h1>
+    
+    <div id="env-test" class="test loading">
+        <h3>Testing Environment Variables...</h3>
+        <div id="env-result"></div>
+    </div>
+    
+    <div id="health-test" class="test loading">
+        <h3>Testing Backend Health...</h3>
+        <div id="health-result"></div>
+    </div>
+    
+    <div id="properties-test" class="test loading">
+        <h3>Testing Properties API...</h3>
+        <div id="properties-result"></div>
+    </div>
+    
+    <div id="stats-test" class="test loading">
+        <h3>Testing Stats API...</h3>
+        <div id="stats-result"></div>
+    </div>
+    
+    <script>
+        // Test environment variables
+        function testEnvironment() {
+            const envDiv = document.getElementById('env-test');
+            const resultDiv = document.getElementById('env-result');
+            
+            const API_BASE = import.meta.env.VITE_API_BASE || 'https://tanzania-real-estate-ai.onrender.com';
+            const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || 'AIzaSyBt9a_4f9T2x3y4w5v6x7z8a9b0c1d2e3';
+            
+            resultDiv.innerHTML = `
+                <pre>API_BASE: ${API_BASE}
+GOOGLE_MAPS_API_KEY: ${GOOGLE_MAPS_API_KEY.substring(0, 10)}...</pre>
+            `;
+            
+            envDiv.className = 'test success';
+        }
+        
+        // Test backend health
+        async function testHealth() {
+            const healthDiv = document.getElementById('health-test');
+            const resultDiv = document.getElementById('health-result');
+            const API_BASE = import.meta.env.VITE_API_BASE || 'https://tanzania-real-estate-ai.onrender.com';
+            
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <p>✅ Backend is healthy!</p>
+                    <pre>Status: ${data.status}</pre>
+                `;
+                healthDiv.className = 'test success';
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <p>❌ Backend health check failed!</p>
+                    <pre>Error: ${error.message}</pre>
+                `;
+                healthDiv.className = 'test error';
+            }
+        }
+        
+        // Test properties API
+        async function testProperties() {
+            const propsDiv = document.getElementById('properties-test');
+            const resultDiv = document.getElementById('properties-result');
+            const API_BASE = import.meta.env.VITE_API_BASE || 'https://tanzania-real-estate-ai.onrender.com';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/properties?limit=3`);
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <p>✅ Properties API working!</p>
+                    <pre>Total properties: ${data.total}
+First property: ${data.properties[0]?.location} - ${data.properties[0]?.price_tzs} TZS</pre>
+                `;
+                propsDiv.className = 'test success';
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <p>❌ Properties API failed!</p>
+                    <pre>Error: ${error.message}</pre>
+                `;
+                propsDiv.className = 'test error';
+            }
+        }
+        
+        // Test stats API
+        async function testStats() {
+            const statsDiv = document.getElementById('stats-test');
+            const resultDiv = document.getElementById('stats-result');
+            const API_BASE = import.meta.env.VITE_API_BASE || 'https://tanzania-real-estate-ai.onrender.com';
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/stats`);
+                const data = await response.json();
+                
+                resultDiv.innerHTML = `
+                    <p>✅ Stats API working!</p>
+                    <pre>Total properties: ${data.total_properties}
+Average price: ${data.average_price}</pre>
+                `;
+                statsDiv.className = 'test success';
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <p>❌ Stats API failed!</p>
+                    <pre>Error: ${error.message}</pre>
+                `;
+                statsDiv.className = 'test error';
+            }
+        }
+        
+        // Run all tests
+        document.addEventListener('DOMContentLoaded', function() {
+            testEnvironment();
+            testHealth();
+            testProperties();
+            testStats();
+        });
+    </script>
+</body>
+</html>
