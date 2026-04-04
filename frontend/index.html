@@ -9,8 +9,8 @@
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBt9a_4fZ9T2x3y4w5v6x7z8a9b0c1d2e3&libraries=places&callback=initMaps" async defer></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Inter', sans-serif; 
+        body {
+            font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%),
             url('https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop') center/cover;
             background-attachment: fixed;
@@ -99,6 +99,39 @@
             <div class="card">
                 <h2>🤖 AI Price Prediction</h2>
                 <p>Get AI-powered price predictions for any property in Tanzania.</p>
+                <div style="margin-top: 20px;">
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 500;">City:</label>
+                        <select id="prediction-city" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 6px;">
+                            <option value="Dar es Salaam">Dar es Salaam</option>
+                            <option value="Arusha">Arusha</option>
+                            <option value="Mwanza">Mwanza</option>
+                            <option value="Dodoma">Dodoma</option>
+                            <option value="Mbeya">Mbeya</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 500;">Bedrooms:</label>
+                        <input type="number" id="prediction-bedrooms" min="1" max="10" value="3" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 6px;">
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 500;">Size (sqm):</label>
+                        <input type="number" id="prediction-size" min="20" max="1000" value="120" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 6px;">
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 500;">Property Type:</label>
+                        <select id="prediction-type" style="width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 6px;">
+                            <option value="Apartment">Apartment</option>
+                            <option value="House">House</option>
+                            <option value="Villa">Villa</option>
+                            <option value="Townhouse">Townhouse</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="predictPrice()">
+                        <i class="fas fa-calculator"></i> Predict Price
+                    </button>
+                    <div id="prediction-result" style="margin-top: 20px;"></div>
+                </div>
             </div>
         </div>
 
@@ -129,28 +162,28 @@
         // Tab switching function
         function switchTab(tabName) {
             console.log('🔄 Switching to tab:', tabName);
-            
+
             // Hide all content sections
             const sections = document.querySelectorAll('.content-section');
             sections.forEach(section => {
                 section.style.display = 'none';
             });
-            
+
             // Remove active class from all tabs
             const tabs = document.querySelectorAll('.nav-tab');
             tabs.forEach(tab => {
                 tab.classList.remove('active');
             });
-            
+
             // Show selected section
             const selectedSection = document.getElementById(tabName);
             if (selectedSection) {
                 selectedSection.style.display = 'block';
             }
-            
+
             // Add active class to clicked tab
             event.target.classList.add('active');
-            
+
             // Load data for specific tabs
             if (tabName === 'properties') {
                 loadProperties();
@@ -163,7 +196,7 @@
         async function testHealth() {
             const result = document.getElementById('dashboard-result');
             result.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i> Testing system health...</div>';
-            
+
             try {
                 const response = await fetch(`${API_BASE}/health`);
                 if (response.ok) {
@@ -192,28 +225,28 @@
         async function loadProperties() {
             const loading = document.getElementById('properties-loading');
             const grid = document.getElementById('properties-grid');
-            
+
             loading.style.display = 'block';
             grid.innerHTML = '';
-            
+
             try {
                 console.log('🔄 Loading properties from:', `${API_BASE}/api/properties?limit=6`);
                 const response = await fetch(`${API_BASE}/api/properties?limit=6`);
-                
+
                 if (!response.ok) {
                     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
-                
+
                 const data = await response.json();
                 console.log('📊 Properties loaded:', data);
-                
+
                 currentProperties = data.properties || [];
                 displayProperties(currentProperties);
                 loading.style.display = 'none';
-                
+
             } catch (error) {
                 console.error('❌ Error loading properties:', error);
-                
+
                 // Fallback data
                 const fallbackProperties = [
                     {
@@ -241,7 +274,7 @@
                         description: "Affordable 2-bedroom in central area"
                     }
                 ];
-                
+
                 currentProperties = fallbackProperties;
                 displayProperties(fallbackProperties);
                 loading.style.display = 'none';
@@ -252,13 +285,13 @@
         async function loadStats() {
             const result = document.getElementById('dashboard-result');
             result.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i> Loading statistics...</div>';
-            
+
             try {
-                const response = await fetch(`${API_BASE}/api/stats`);
+                const response = await fetch(`${API_BASE}/api/analytics/overview`);
                 if (response.ok) {
                     const data = await response.json();
                     currentStats = data;
-                    
+
                     result.innerHTML = `
                         <div class="status success">
                             <h3>✅ Statistics Loaded</h3>
@@ -283,17 +316,23 @@
         async function loadAnalytics() {
             const content = document.getElementById('analytics-content');
             content.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i> Loading analytics...</div>';
-            
+
             try {
-                const response = await fetch(`${API_BASE}/api/market-analytics`);
+                const response = await fetch(`${API_BASE}/api/analytics/cities`);
                 const data = await response.json();
-                
+
                 content.innerHTML = `
                     <div class="status success">
                         <h3>✅ Market Analytics</h3>
-                        <p><strong>Total Properties:</strong> ${data.total_properties || '156'}</p>
-                        <p><strong>Average Price:</strong> ${formatPrice(data.average_price || 320000000)}</p>
-                        <p><strong>Popular Areas:</strong> Dar es Salaam, Arusha, Mwanza</p>
+                        <div style="margin-top: 15px;">
+                            ${data.map(city => `
+                                <div style="margin-bottom: 10px; padding: 10px; background: #f9fafb; border-radius: 6px;">
+                                    <strong>${city.city}:</strong> ${city.total_properties} properties, 
+                                    Avg: ${formatPrice(city.average_price_tzs)}, 
+                                    Trend: ${city.price_trend}
+                                </div>
+                            `).join('')}
+                        </div>
                     </div>
                 `;
             } catch (error) {
@@ -306,10 +345,60 @@
             }
         }
 
+        // Predict price function
+        async function predictPrice() {
+            const result = document.getElementById('prediction-result');
+            result.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i> Predicting price...</div>';
+
+            try {
+                const city = document.getElementById('prediction-city').value;
+                const bedrooms = parseInt(document.getElementById('prediction-bedrooms').value);
+                const size_sqm = parseInt(document.getElementById('prediction-size').value);
+                const property_type = document.getElementById('prediction-type').value;
+
+                const response = await fetch(`${API_BASE}/api/predictions/price`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        location: "Sample Location",
+                        city: city,
+                        bedrooms: bedrooms,
+                        bathrooms: Math.max(1, Math.floor(bedrooms / 2)),
+                        size_sqm: size_sqm,
+                        property_type: property_type
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    result.innerHTML = `
+                        <div class="status success">
+                            <h3>🤖 AI Price Prediction</h3>
+                            <p><strong>Predicted Price:</strong> ${formatPrice(data.predicted_price_tzs)}</p>
+                            <p><strong>Confidence:</strong> ${(data.confidence_score * 100).toFixed(1)}%</p>
+                            <p><strong>Price Range:</strong> ${formatPrice(data.price_range_tzs.min)} - ${formatPrice(data.price_range_tzs.max)}</p>
+                            <p><strong>Market Comparison:</strong> ${data.market_comparison}</p>
+                        </div>
+                    `;
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                result.innerHTML = `
+                    <div class="status error">
+                        <h3>❌ Prediction Error</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
         // Display properties function
         function displayProperties(properties) {
             const grid = document.getElementById('properties-grid');
-            
+
             if (properties.length === 0) {
                 grid.innerHTML = `
                     <div class="status error">
@@ -318,7 +407,7 @@
                 `;
                 return;
             }
-            
+
             grid.innerHTML = properties.map(property => `
                 <div class="property-card">
                     <h3>${property.location}</h3>
@@ -355,11 +444,11 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('🚀 Page loaded, initializing...');
             console.log('🔧 API_BASE:', API_BASE);
-            
+
             testHealth();
             loadStats();
             loadProperties();
-            
+
             console.log('✅ Initialization complete');
         });
     </script>
