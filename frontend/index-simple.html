@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tanzania Real Estate AI - Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
+        .btn { padding: 10px 20px; margin: 10px; border: none; border-radius: 5px; cursor: pointer; }
+        .btn-primary { background: #007bff; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .loading { background: #fff3cd; color: #856404; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏠 Tanzania Real Estate AI - Test Page</h1>
+        <p>This is a simple test to verify the site is working.</p>
+        
+        <div id="status" class="status loading">Testing basic functionality...</div>
+        
+        <button class="btn btn-primary" onclick="testAPI()">Test Backend API</button>
+        <button class="btn btn-success" onclick="loadProperties()">Load Properties</button>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://tanzania-real-estate-ai.onrender.com';
+        
+        function updateStatus(message, type = 'loading') {
+            const status = document.getElementById('status');
+            status.className = `status ${type}`;
+            status.textContent = message;
+        }
+        
+        async function testAPI() {
+            updateStatus('Testing API connection...', 'loading');
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                if (response.ok) {
+                    const data = await response.json();
+                    updateStatus(`✅ API Connected: ${data.status}`, 'success');
+                } else {
+                    updateStatus(`❌ API Error: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                updateStatus(`❌ API Failed: ${error.message}`, 'error');
+            }
+        }
+        
+        async function loadProperties() {
+            updateStatus('Loading properties...', 'loading');
+            try {
+                const response = await fetch(`${API_BASE}/api/properties?limit=3`);
+                if (response.ok) {
+                    const data = await response.json();
+                    const results = document.getElementById('results');
+                    results.innerHTML = `
+                        <h3>✅ Found ${data.properties.length} properties:</h3>
+                        ${data.properties.map(p => `
+                            <div style="border: 1px solid #ddd; padding: 10px; margin: 10px 0; border-radius: 5px;">
+                                <strong>${p.location}</strong> - ${p.city}<br>
+                                Price: ${p.price_tzs.toLocaleString()} TZS<br>
+                                ${p.bedrooms} bedrooms, ${p.bathrooms} bathrooms
+                            </div>
+                        `).join('')}
+                    `;
+                    updateStatus(`✅ Loaded ${data.properties.length} properties`, 'success');
+                } else {
+                    updateStatus(`❌ Properties Error: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                updateStatus(`❌ Properties Failed: ${error.message}`, 'error');
+                // Show fallback data
+                const results = document.getElementById('results');
+                results.innerHTML = `
+                    <h3>⚠️ Using Sample Data:</h3>
+                    <div style="border: 1px solid #ddd; padding: 10px; margin: 10px 0; border-radius: 5px;">
+                        <strong>Kinondoni</strong> - Dar es Salaam<br>
+                        Price: 450,000,000 TZS<br>
+                        3 bedrooms, 2 bathrooms
+                    </div>
+                `;
+            }
+        }
+        
+        // Auto-test on load
+        window.onload = function() {
+            updateStatus('✅ Page loaded successfully!', 'success');
+            setTimeout(testAPI, 1000);
+        };
+    </script>
+</body>
+</html>
