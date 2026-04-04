@@ -4,15 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tanzania Real Estate AI</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=3">
-    <link rel="shortcut icon" type="image/svg+xml" href="/favicon.svg?v=3">
-    <link rel="apple-touch-icon" type="image/svg+xml" href="/favicon.svg?v=3">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <link rel="icon" type="image/png" href="/favicon.png">
-    <link rel="shortcut icon" type="image/png" href="/favicon.png">
-    <link rel="apple-touch-icon" type="image/png" href="/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBt9a_4fZ9T2x3y4w5v6x7z8a9b0c1d2e3&libraries=places&callback=initMaps" async defer></script>
@@ -21,7 +12,7 @@
         body { 
             font-family: 'Inter', sans-serif; 
             background: linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%),
-                        url('https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop') center/cover;
+            url('https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&fit=crop') center/cover;
             background-attachment: fixed;
             background-size: cover;
             background-position: center;
@@ -34,7 +25,7 @@
         .nav-tab.active { background: #3b82f6; color: white; }
         .content-section { display: none; }
         .card { background: rgba(255,255,255,0.95); border-radius: 15px; padding: 30px; margin-bottom: 20px; backdrop-filter: blur(10px); }
-        .btn { padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.3s; }
+        .btn { padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.3s; margin: 5px; }
         .btn-primary { background: #3b82f6; color: white; }
         .btn-success { background: #10b981; color: white; }
         .btn-warning { background: #f59e0b; color: white; }
@@ -42,8 +33,9 @@
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
         .property-card { border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; background: white; }
         .status { padding: 15px; border-radius: 8px; margin: 10px 0; }
-        .success { background: #f0fdf4; color: #10b981; }
-        .error { background: #fef2f2; color: #ef4444; }
+        .status.success { background: #d1fae5; color: #065f46; }
+        .status.error { background: #fef2f2; color: #991b1b; }
+        .status.loading { background: #fef3c7; color: #856404; }
     </style>
 </head>
 <body>
@@ -131,7 +123,6 @@
 
         // Configuration
         const API_BASE = 'https://tanzania-real-estate-ai.onrender.com';
-        const GOOGLE_MAPS_API_KEY = 'AIzaSyBt9a_4fZ9T2x3y4w5v6x7z8a9b0c1d2e3';
         let currentProperties = [];
         let currentStats = {};
 
