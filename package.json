@@ -5,9 +5,13 @@
   "scripts": {
     "build": "cd frontend && bun install && bun run build",
     "dev": "cd frontend && npm run dev",
-    "preview": "cd frontend && npm run preview"
+    "preview": "wrangler dev",
+    "deploy": "wrangler deploy"
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "wrangler": "^4.80.0"
   }
 }

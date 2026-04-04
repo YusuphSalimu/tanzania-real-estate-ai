@@ -569,3 +569,9 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 >>>>>>> 2fe98aaedd49fc0a8c3291333f8f879e2876652b
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example
