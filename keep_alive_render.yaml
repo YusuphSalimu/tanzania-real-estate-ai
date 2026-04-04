@@ -1,0 +1,10 @@
+services:
+  - type: worker
+    name: tanzania-real-estate-keepalive
+    env: python
+    plan: free
+    buildCommand: "pip install requests schedule"
+    startCommand: "python keep_alive.py"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.9
