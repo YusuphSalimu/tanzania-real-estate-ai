@@ -1475,6 +1475,7 @@
             
             try {
                 console.log('🔄 Loading properties from:', `${API_BASE}/api/properties?limit=12`);
+                console.log('🔍 API_BASE value:', API_BASE);
                 const response = await fetch(`${API_BASE}/api/properties?limit=12`);
                 
                 if (!response.ok) {
@@ -1486,6 +1487,7 @@
                 
                 // Handle different response formats
                 currentProperties = data.properties || data || [];
+                console.log('📈 Current properties set:', currentProperties.length, 'items');
                 
                 if (inDashboard) {
                     // Show results in dashboard
@@ -2053,10 +2055,17 @@
 
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Page loaded, initializing...');
+            console.log('🔧 API_BASE:', API_BASE);
+            console.log('🗝️ GOOGLE_MAPS_API_KEY:', GOOGLE_MAPS_API_KEY);
+            
             checkBackend();
             checkMLModel();
             loadStats();
+            loadProperties(); // Load properties automatically
             initializeLocationSuggestions();
+            
+            console.log('✅ Initialization complete');
         });
     </script>
 </body>
