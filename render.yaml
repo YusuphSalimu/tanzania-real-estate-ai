@@ -5,7 +5,7 @@ services:
     env: static
     repo: https://github.com/YusuphSalimu/tanzania-real-estate-ai.git
     rootDir: frontend
-    buildCommand: npm run build:simple
+    buildCommand: npm run build
     publishDir: dist
     nodeVersion: 18
     envVars:
